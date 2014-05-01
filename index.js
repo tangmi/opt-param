@@ -1,5 +1,7 @@
 //opt-param÷
 
+var assert = require('assert');
+
 var getType = function(obj) {
 	var funcNameRegex = /function (.{1,})\(/;
 	var results = (funcNameRegex).exec((obj).constructor.toString());
@@ -20,10 +22,37 @@ function parse(opt, parameters) {
 
 	var output = {};
 	for (var parameter in parameters) {
-		var specType = (parameters[parameter].type || '').toLowerCase();
-		var specRequired = parameters[parameter].required || false;
+		// variable hoisting means these have to be initialized every time
+		var specType = '',
+			specRequired = false;
+
+		// parse/read the declaration
+		var declaration = parameters[parameter],
+			declarationType = getType(parameters[parameter]).toLowerCase();
+		if (declarationType == 'object') {
+			// object-based declaration
+			specType = (declaration.type || '').toLowerCase();
+			specRequired = declaration.required || false;
+		} else if (declarationType == 'string') {
+			// string-based declaration
+			var parts = declaration.split(/\s+/);
+			assert(parts.length <= 2, 'declaration has too many parts!');
+			for(var i = 0; i < parts.length; i++) {
+				var part = parts[i];
+				if(part == 'required') {
+					specRequired = true;
+				} else {
+					specType = part;
+				}
+			}
+		} else {
+			// unsupported declaration
+			throw new TypeError('declaration is of type ' + declarationType + ', expected an object or string!');
+		}
 
 		if (opt.hasOwnProperty(parameter)) {
+			// opt object has a declared parameter
+
 			var value = opt[parameter];
 			var type = getType(value).toLowerCase();
 
@@ -58,6 +87,8 @@ function parse(opt, parameters) {
 				}
 			}
 		} else {
+			// opt object does not have a declared parameter
+
 			if (specRequired) {
 				// we don't have it, but it was required!
 				missingParameters.push('"' + parameter + '"');
@@ -67,6 +98,7 @@ function parse(opt, parameters) {
 		}
 	}
 
+	// handle all missing parameters at once
 	if (missingParameters.length > 0) {
 		if (missingParameters.length == 1) {
 			throw new Error('required parameter ' + missingParameters[0] + ' nonexistant!');
@@ -75,6 +107,7 @@ function parse(opt, parameters) {
 		}
 	}
 
+	// if we want to modify opt:
 	// // 'clean' opt
 	// for (var key in opt) {
 	// 	if (opt.hasOwnProperty(key)) {
