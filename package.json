@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha -R spec",
+    "coverage": "istanbul cover _mocha",
     "postpublish": "./node_modules/.bin/srun --script=postpublish"
   },
   "repository": {

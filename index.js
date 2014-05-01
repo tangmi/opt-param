@@ -128,11 +128,12 @@ function parse(opt, parameters) {
 
 module.exports = parse;
 
+
 // only throws errors if parameters are bad and turns
-// into a no-op if NODE_ENV == 'production'
-module.exports.dev = (process.env.NODE_ENV == 'production') ? function(opt) {
+// into a essentially no-op if NODE_ENV == 'production'
+module.exports.dev = function(opt) {
+	if (process.env.NODE_ENV != 'production') {
+		parse.apply(this, arguments);
+	}
 	return opt;
-} : function(opt) {
-	parse.apply(this, arguments);
-	return opt;
-};
+}

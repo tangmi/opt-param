@@ -39,6 +39,33 @@ describe('basic', function() {
 		});
 	});
 
+	describe('bad input cases', function() {
+		var declaration = {
+			w: {
+				type: 'number',
+				required: true
+			},
+			h: {
+				type: 'number',
+				required: true
+			}
+		};
+
+		it('should fail if one of the required params is missing', function() {
+			assert.throws(function() {
+				optparam({
+					w: 123
+				}, declaration);
+			});
+		});
+
+		it('should fail if more than one of the required params is missing', function() {
+			assert.throws(function() {
+				optparam({}, declaration);
+			});
+		});
+	});
+
 	describe('use non-primitives', function() {
 		it('should use array', function() {
 			var out = optparam({
@@ -50,18 +77,54 @@ describe('basic', function() {
 			});
 			assert.deepEqual(out.n, []);
 		});
-		it('should use custom functions', function() {
-			function Person(name) {
-				this.name = name;
+
+		function Person(name) {
+			this.name = name;
+		}
+		var declaration = {
+			n: {
+				type: 'person'
 			}
+		};
+		it('should use custom functions', function() {
 			var out = optparam({
 				n: new Person('tangmi')
+			}, declaration);
+			assert.deepEqual(out.n, new Person('tangmi'));
+		});
+		it('should fail if trying to coerce to a non-primitive', function() {
+			assert.throws(function() {
+				optparam({
+					n: 'not a person'
+				}, declaration);
+			});
+
+			assert.throws(function() {
+				optparam({
+					n: {
+						name: 'close, but no dice'
+					}
+				}, declaration);
+			});
+		});
+
+		describe('annonymous functions', function() {
+			// TODO: handle this case better?
+			var anon = function() {
+				this.val = 'hi';
+			};
+			var out = optparam({
+				p: new anon()
 			}, {
-				n: {
-					type: 'person'
+				p: {
+					type: ''
 				}
 			});
-			assert.deepEqual(out.n, new Person('tangmi'));
+			assert.deepEqual(out, {
+				p: {
+					val: 'hi'
+				}
+			})
 		});
 	});
 
@@ -190,6 +253,7 @@ describe('basic', function() {
 			});
 		});
 	});
+
 	describe('other cases', function() {
 		var declaration = {
 			n: {}
@@ -212,6 +276,11 @@ describe('basic', function() {
 			});
 			assert.throws(function() {
 				optparam({}, undefined);
+			});
+		});
+		it('should fail if passed a non-undefined non-object opt parameter', function() {
+			assert.throws(function() {
+				optparam('hi there', {});
 			});
 		});
 	});
