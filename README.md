@@ -49,6 +49,13 @@ var doAThing = function(opt) {
 			type: 'number',
 			required: true
 		}
+		/*
+		 * we can also declare it as such:
+		 * w: 'required number',
+		 * h: 'required number',
+		 * name: 'string', // optional string parameter
+		 * opt: 'required' //required "whatever" parameter
+		 */
 	});
 
 	// lets see what it did
