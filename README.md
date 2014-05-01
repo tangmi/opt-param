@@ -2,6 +2,8 @@
 
 add some sanity to loosely typed javascript option parameters.
 
+this module simply pulls in a options object (from a function parameter) and returns a "cleaned up" version bassed on a declaration made in the code itself. check out the examples below.
+
 ## reasoning
 
 passing in an object literal containing parameters is super popular in all the favorite javascript libraries. it's super cool.
