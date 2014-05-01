@@ -18,7 +18,7 @@ npm install --save opt-param
 
 ## usage
 
-`optparam(opt, parameterDeclaration)`
+`opt = optparam(opt, parameterDeclaration);`
 
 * `opt`: the option parameter to be used
 * `parameterDeclaration`: an object whose keys are declared parameter names and whose values are objects declaring information about a parameter (as below in examples)
