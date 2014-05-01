@@ -4,7 +4,8 @@
   "description": "extract and assert the existence of an opt parameter",
   "main": "index.js",
   "scripts": {
-    "test": "node test/*.js"
+    "test": "node test/basic.js",
+    "postpublish": "./bin/index.js --script=postpublish"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/tangmi/opt-param/issues"
   },
-  "homepage": "https://github.com/tangmi/opt-param"
+  "homepage": "https://github.com/tangmi/opt-param",
+  "devDependencies": {
+    "srun": "0.0.6"
+  }
 }
