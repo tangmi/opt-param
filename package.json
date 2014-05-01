@@ -1,30 +1,30 @@
 {
-  "name": "opt-param",
-  "version": "0.0.0",
-  "description": "extract and assert the existence of an opt parameter",
-  "main": "index.js",
-  "scripts": {
-    "test": "node test/basic.js",
-    "postpublish": "./bin/index.js --script=postpublish"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tangmi/opt-param"
-  },
-  "keywords": [
-    "option",
-    "param",
-    "opt",
-    "function",
-    "parameter"
-  ],
-  "author": "tangmi",
-  "license": "Artistic License 2.0",
-  "bugs": {
-    "url": "https://github.com/tangmi/opt-param/issues"
-  },
-  "homepage": "https://github.com/tangmi/opt-param",
-  "devDependencies": {
-    "srun": "0.0.6"
-  }
+	"name": "opt-param",
+	"version": "0.0.0",
+	"description": "extract and assert the existence of an opt parameter",
+	"main": "index.js",
+	"scripts": {
+		"test": "node test/basic.js",
+		"postpublish": "./node_modules/.bin/srun --script=postpublish"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tangmi/opt-param"
+	},
+	"keywords": [
+		"option",
+		"param",
+		"opt",
+		"function",
+		"parameter"
+	],
+	"author": "tangmi",
+	"license": "Artistic License 2.0",
+	"bugs": {
+		"url": "https://github.com/tangmi/opt-param/issues"
+	},
+	"homepage": "https://github.com/tangmi/opt-param",
+	"devDependencies": {
+		"srun": "0.0.6"
+	}
 }
