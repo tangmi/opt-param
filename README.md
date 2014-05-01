@@ -16,7 +16,20 @@ npm install --save opt-param
 
 ## usage
 
-note that this does modify the `opt` object passed in
+`optparam(opt, parameterDeclaration)`
+
+* `opt`: the option parameter to be used
+* `parameterDeclaration`: an object whose keys are declared parameter names and whose values are objects declaring information about a parameter (as below in examples)
+
+### notes:
+
+* the `type` value is basically the `instanceof` value as a string, to lower case.
+* if a parameter is optional (`required = false`) and not present, the output object will still defined that key, but set the value explicitly to `undefined`
+* parameters that are passed into the function that are not defined in the `optparam` call will be dropped from the output
+* parameter declarations that do not have `required: true` will assume they are optional
+* parameter declarations that do not have a type is assumed it's okay to be anything (parameter declarations can be an empty object)
+
+### examples
 
 ```js
 var optparam = require('opt-param');
@@ -72,7 +85,11 @@ doAThing({
  * outputs:
  *     throws and error!
  */
+```
 
+we can do more stuff (more examples just for the sake of it);
+
+```js
 // but wait, there's more!
 var doAnotherThing = function(opt) {
 	// parse and modify the option parameter
@@ -89,7 +106,7 @@ var doAnotherThing = function(opt) {
 	}
 }
 
-doAnotherThing(); // no output
+doAnotherThing(); // no output (opt.arr will be explicitly set to `undefined`)
 doAnotherThing([]); // prints: 0
 doAnotherThing([1, 2, 3]) // prints: 3
 ```

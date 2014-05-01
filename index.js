@@ -20,15 +20,15 @@ function parse(opt, parameters) {
 
 	var output = {};
 	for (var parameter in parameters) {
-		var specType = parameters[parameter].type.toLowerCase();
-		var specRequired = parameters[parameter].required;
+		var specType = (parameters[parameter].type || '').toLowerCase();
+		var specRequired = parameters[parameter].required || false;
 
 		if (opt.hasOwnProperty(parameter)) {
 			var value = opt[parameter];
 			var type = getType(value).toLowerCase();
 
 			// check if the types are the same
-			if (type == specType) {
+			if (type == specType || specType == '') {
 				// everything's good in the neighborhood
 				output[parameter] = opt[parameter];
 			} else {

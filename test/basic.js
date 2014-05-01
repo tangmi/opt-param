@@ -24,7 +24,8 @@ function doAThing(opt) {
 		bool: {
 			type: 'boolean',
 			required: false
-		}
+		},
+		noop: {}
 	});
 	console.log('out:', opt);
 	console.log();
@@ -109,6 +110,13 @@ runTheTests([
 		w: 1,
 		h: 2,
 		bool: false
+	},
+
+	// do a noop thing
+	{
+		w: 1,
+		h: 2,
+		noop: 'cool!'
 	},
 
 	// undefined
