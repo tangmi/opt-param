@@ -1,127 +1,218 @@
 var optparam = require('..');
 
-// define a function that takes an opt parameter
-function doAThing(opt) {
-	console.log(' in:', opt);
-	opt = optparam(opt, {
-		w: {
-			// basic object type
-			type: 'number',
-			required: true
-		},
-		h: {
-			type: 'number',
-			required: true
-		},
-		name: {
-			type: 'string',
-			required: false
-		},
-		array: {
-			type: 'array',
-			required: false
-		},
-		bool: {
-			type: 'boolean',
-			required: false
-		},
-		noop: {}
+var assert = require("assert");
+
+describe('basic', function() {
+	describe('good cases', function() {
+		var declaration = {
+			w: {
+				type: 'number',
+				required: true
+			},
+			h: {
+				type: 'number',
+				required: true
+			}
+		};
+
+		it('should be an ok input value', function() {
+			var out = optparam({
+				w: 50,
+				h: 15
+			}, declaration);
+			assert.deepEqual(out, {
+				w: 50,
+				h: 15
+			});
+		});
+
+		it('should drop extra vlues', function() {
+			var out = optparam({
+				w: 50,
+				h: 15,
+				extra: 'thing',
+			}, declaration);
+			assert.deepEqual(out, {
+				w: 50,
+				h: 15
+			});
+		});
 	});
-	console.log('out:', opt);
-	console.log();
-}
 
-// run our function with an array of opt objects
-var runTheTests = function(opts) {
-	for (var i = 0; i < opts.length; i++) {
-		var opt = opts[i];
-		try {
-			doAThing(opt);
-		} catch (e) {
-			console.log('err:', e.message);
-			console.log();
-		}
-	}
-};
+	describe('use non-primitives', function() {
+		it('should use array', function() {
+			var out = optparam({
+				n: []
+			}, {
+				n: {
+					type: 'array'
+				}
+			});
+			assert.deepEqual(out.n, []);
+		});
+		it('should use custom functions', function() {
+			function Person(name) {
+				this.name = name;
+			}
+			var out = optparam({
+				n: new Person('tangmi')
+			}, {
+				n: {
+					type: 'person'
+				}
+			});
+			assert.deepEqual(out.n, new Person('tangmi'));
+		});
+	});
 
-// actually run the tests
-runTheTests([
-	// basic 'ok' values
-	{
-		w: 50,
-		h: 15
-	},
+	describe('null/undefined cases', function() {
+		var declaration = {
+			n: {}
+		};
+		it('should pass null through', function() {
+			var out = optparam({
+				n: null
+			}, declaration);
+			assert.equal(out.n, null);
+		});
+		it('should pass undefined through', function() {
+			var out = optparam({
+				n: undefined
+			}, declaration);
+			assert.equal(out.n, undefined);
+		});
+	});
 
-	// coerce to a number
-	{
-		w: '50',
-		h: 15
-	},
+	describe('primitive parameter coercing', function() {
+		describe('to a number', function() {
+			var declaration = {
+				num: {
+					type: 'number'
+				}
+			}
+			it('should coerce a string to a number', function() {
+				var out = optparam({
+					num: '123'
+				}, declaration);
 
-	// won't coerce to a number
-	{
-		w: '50x',
-		h: 15
-	},
+				assert.equal(out.num, 123);
+			});
+			it('should coerce a boolean to a number', function() {
+				var out = optparam({
+					num: false
+				}, declaration);
+				assert.equal(out.num, 0);
 
-	// missing parameter
-	{
-		w: 50,
-	},
+				out = optparam({
+					num: true
+				}, declaration);
+				assert.equal(out.num, 1);
+			});
+			it('should pass a null/undefined without coercing', function() {
+				var out = optparam({
+					num: null
+				}, declaration);
 
-	// with option name
-	{
-		w: 1,
-		h: 2,
-		name: 'howdy'
-	},
+				assert.equal(out.num, null);
 
-	// coerce that name to a string
-	{
-		w: 1,
-		h: 2,
-		name: 5
-	},
+				out = optparam({
+					num: undefined
+				}, declaration);
 
-	// don't let extras through
-	{
-		w: 1,
-		h: 2,
-		name: 5,
-		extra: 'this will be dropped'
-	},
+				assert.equal(out.num, undefined);
+			});
+			it('should fail if cannot coerce to a number', function() {
+				assert.throws(function() {
+					optparam({
+						num: 'THIS IS NOT A NUMBER'
+					}, declaration);
+				});
+			});
+		});
+		describe('to a string', function() {
+			var declaration = {
+				str: {
+					type: 'string'
+				}
+			}
+			it('should coerce a number to a string', function() {
+				var out = optparam({
+					str: '123'
+				}, declaration);
+				assert.equal(out.str, '123');
+			});
+			it('should coerce a boolean to a string', function() {
+				var out = optparam({
+					str: false
+				}, declaration);
+				assert.equal(out.str, 'false');
+			});
+			it('should pass a null/undefined without coercing', function() {
+				var out = optparam({
+					str: null
+				}, declaration);
 
-	// try it with an array
-	{
-		w: 1,
-		h: 2,
-		array: []
-	},
+				assert.equal(out.str, null);
 
-	// try it with an boolean... you know, truthiness
-	{
-		w: 1,
-		h: 2,
-		bool: new Array()
-	},
+				out = optparam({
+					str: undefined
+				}, declaration);
 
-	// ok for realz
-	{
-		w: 1,
-		h: 2,
-		bool: false
-	},
+				assert.equal(out.str, undefined);
+			});
+		});
+		describe('to a boolean', function() {
+			var declaration = {
+				bool: {
+					type: 'boolean'
+				}
+			}
+			it('should coerce whatever to a boolean', function() {
+				var out = optparam({
+					bool: 123
+				}, declaration);
+				assert.equal(out.bool, true);
 
-	// do a noop thing
-	{
-		w: 1,
-		h: 2,
-		noop: 'cool!'
-	},
+				out = optparam({
+					bool: 'hello'
+				}, declaration);
+				assert.equal(out.bool, true);
 
-	// undefined
-	undefined,
+				out = optparam({
+					bool: []
+				}, declaration);
+				assert.equal(out.bool, true);
 
-	// not an object
-	1, [], 'pbbt'
-]);
+				out = optparam({
+					bool: undefined
+				}, declaration);
+				assert.equal(out.bool, false);
+			});
+		});
+	});
+	describe('other cases', function() {
+		var declaration = {
+			n: {}
+		};
+		it('should construct a blank object if passed undefined', function() {
+			var out = optparam(undefined, declaration);
+			assert.deepEqual(out, {
+				n: undefined
+			});
+		});
+		it('should fail if passed bad declaration', function() {
+			assert.throws(function() {
+				optparam({}, 1);
+			});
+			assert.throws(function() {
+				optparam({}, null);
+			});
+			assert.throws(function() {
+				optparam({}, []);
+			});
+			assert.throws(function() {
+				optparam({}, undefined);
+			});
+		});
+	});
+});

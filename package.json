@@ -4,7 +4,7 @@
   "description": "extract and assert the existence of an opt parameter",
   "main": "index.js",
   "scripts": {
-    "test": "node test/basic.js",
+    "test": "mocha -R spec",
     "postpublish": "./node_modules/.bin/srun --script=postpublish"
   },
   "repository": {

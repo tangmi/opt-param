@@ -14,8 +14,12 @@ function parse(opt, parameters) {
 		opt = {};
 	}
 
+	// check if our parameters are objects
 	if (getType(opt).toLowerCase() != 'object') {
 		throw new TypeError('opt is not an object! (type: ' + getType(opt).toLowerCase() + ', value: ' + JSON.stringify(opt, null, 2) + ')');
+	}
+	if (getType(parameters).toLowerCase() != 'object') {
+		throw new TypeError('declaration is not an object! (type: ' + getType(parameters).toLowerCase() + ', value: ' + JSON.stringify(parameters, null, 2) + ')');
 	}
 
 	var missingParameters = [];
@@ -37,9 +41,9 @@ function parse(opt, parameters) {
 			// string-based declaration
 			var parts = declaration.split(/\s+/);
 			assert(parts.length <= 2, 'declaration has too many parts!');
-			for(var i = 0; i < parts.length; i++) {
+			for (var i = 0; i < parts.length; i++) {
 				var part = parts[i];
-				if(part == 'required') {
+				if (part == 'required') {
 					specRequired = true;
 				} else {
 					specType = part;
@@ -54,23 +58,35 @@ function parse(opt, parameters) {
 			// opt object has a declared parameter
 
 			var value = opt[parameter];
-			var type = getType(value).toLowerCase();
+			var type;
+			if (typeof value == 'undefined' || value === null) {
+				output[parameter] = value;
+			} else {
+				type = getType(value).toLowerCase()
+			}
 
 			// check if the types are the same
 			if (type == specType || specType == '') {
 				// everything's good in the neighborhood
-				output[parameter] = opt[parameter];
+				output[parameter] = value;
 			} else {
 				if (specType == 'string') {
+					if (typeof value == 'undefined' || value === null) {
+						continue;
+					}
 					// coerce it to a string
-					output[parameter] = '' + opt[parameter];
+					output[parameter] = '' + value;
 				} else if (specType == 'number') {
+					if (typeof value == 'undefined' || value === null) {
+						continue;
+					}
+
 					// coerce it to a number
 					var failOnParseNumber = function() {
-						throw new TypeError('cannot coerce parameter "' + parameter + '" (value: ' + JSON.stringify(opt[parameter]) + ')' + ' to a number!');
+						throw new TypeError('cannot coerce parameter "' + parameter + '" (value: ' + JSON.stringify(value) + ')' + ' to a number!');
 					}
 					try {
-						var num = Number(opt[parameter]);
+						var num = Number(value);
 						if (isNaN(num)) {
 							failOnParseNumber();
 						}
@@ -80,7 +96,7 @@ function parse(opt, parameters) {
 					}
 				} else if (specType == 'boolean') {
 					// coerce it to a boolean, based on "truthiness"
-					output[parameter] = !! opt[parameter];
+					output[parameter] = !! value;
 				} else {
 					// we can't coerce easily, abort abort!
 					throw new TypeError('parameter "' + parameter + '" was expected to be "' + specType + '", but was actually "' + type + '"!')
@@ -107,19 +123,16 @@ function parse(opt, parameters) {
 		}
 	}
 
-	// if we want to modify opt:
-	// // 'clean' opt
-	// for (var key in opt) {
-	// 	if (opt.hasOwnProperty(key)) {
-	// 		delete opt[key];
-	// 	}
-	// }
-	// // fill opt with output
-	// for (var key in output) {
-	// 	opt[key] = output[key];
-	// }
-
 	return output;
 }
 
 module.exports = parse;
+
+// only throws errors if parameters are bad and turns
+// into a no-op if NODE_ENV == 'production'
+module.exports.dev = (process.env.NODE_ENV == 'production') ? function(opt) {
+	return opt;
+} : function(opt) {
+	parse.apply(this, arguments);
+	return opt;
+};
