@@ -1,6 +1,6 @@
 {
 	"name": "opt-param",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "extract and assert the existence of an opt parameter",
 	"main": "index.js",
 	"scripts": {
@@ -25,6 +25,6 @@
 	},
 	"homepage": "https://github.com/tangmi/opt-param",
 	"devDependencies": {
-		"srun": "0.0.6"
+		"srun": "0.0.8"
 	}
 }
