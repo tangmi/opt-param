@@ -1,6 +1,6 @@
 {
   "name": "opt-param",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "extract and assert the existence of an opt parameter",
   "main": "index.js",
   "scripts": {
